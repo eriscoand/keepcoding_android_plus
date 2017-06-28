@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MadridShops</string>
+    <string name="activity_main__clear_cache_button_text">Clear cache</string>
+</resources>

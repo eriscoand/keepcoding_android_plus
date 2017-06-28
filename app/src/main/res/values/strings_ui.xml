@@ -1,0 +1,4 @@
+<resources>
+    <string name="activity_main__shops_button_text">Shops</string>
+    <string name="activity_main__activities_button_text">Activities</string>
+</resources>
