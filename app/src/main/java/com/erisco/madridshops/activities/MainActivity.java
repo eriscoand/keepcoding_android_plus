@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if(!NetworkUtility.isOnline(getApplicationContext())){
+        NetworkUtility network = new NetworkUtility(getApplicationContext());
+
+        if(!network.isOnline()){
             offlineAlert();
 
             GetCachedInteractor getIfAllShopsAreCachedInteractor = new ShopsGetCachedInteractorImpl(this);
