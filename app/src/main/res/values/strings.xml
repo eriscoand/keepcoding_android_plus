@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">MadridShops</string>
     <string name="activity_main__clear_cache_button_text">Clear cache</string>
+    <string name="search_label">Search</string>
+    <string name="search_hint">Search for a text!</string>
+    <string name="app_label">MadridShops</string>
+    <string name="search">Search...</string>
+    <string name="unable_create_maps">Sorry! unable to create maps</string>
+    <string name="title_offline">Offline</string>
+    <string name="message_offline">Destroy your phone, no internet connection found</string>
 </resources>

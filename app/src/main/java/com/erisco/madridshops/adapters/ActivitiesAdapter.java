@@ -7,18 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.erisco.madridshops.R;
+import com.erisco.madridshops.domain.model.Activity.Activities;
+import com.erisco.madridshops.domain.model.Activity.Activity;
 import com.erisco.madridshops.domain.model.Shop.Shop;
 import com.erisco.madridshops.domain.model.Shop.Shops;
 import com.erisco.madridshops.views.OnElementClick;
 import com.erisco.madridshops.views.RowViewHolder;
 
-public class ShopsAdapter extends RecyclerView.Adapter<RowViewHolder> {
-    private Shops shops;
+public class ActivitiesAdapter extends RecyclerView.Adapter<RowViewHolder> {
+    private Activities activities;
     private LayoutInflater inflater;
-    private OnElementClick<Shop> listener;
+    private OnElementClick<Activity> listener;
 
-    public ShopsAdapter(final Shops shops, final Context context) {
-        this.shops = shops;
+    public ActivitiesAdapter(final Activities activities, final Context context) {
+        this.activities = activities;
         inflater = LayoutInflater.from(context);
     }
 
@@ -31,15 +33,15 @@ public class ShopsAdapter extends RecyclerView.Adapter<RowViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RowViewHolder shopRow, final int position) {
-        final Shop shop = this.shops.get(position);
-        shopRow.set(shop.getName(),shop.getLogoUrl());
+    public void onBindViewHolder(RowViewHolder row, final int position) {
+        final Activity activity = this.activities.get(position);
+        row.set(activity.getName(),activity.getLogoUrl());
 
-        shopRow.itemView.setOnClickListener(new View.OnClickListener() {
+        row.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (listener != null) {
-                    listener.clickedOn(shop, position);
+                    listener.clickedOn(activity, position);
                 }
             }
         });
@@ -47,13 +49,13 @@ public class ShopsAdapter extends RecyclerView.Adapter<RowViewHolder> {
 
     @Override
     public int getItemCount() {
-        if (this.shops != null) {
-            return (int) this.shops.size();
+        if (this.activities != null) {
+            return (int) this.activities.size();
         }
         return 0;
     }
 
-    public void setOnClickListener(OnElementClick<Shop> listener) {
+    public void setOnClickListener(OnElementClick<Activity> listener) {
         this.listener = listener;
     }
 }

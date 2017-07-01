@@ -1,6 +1,12 @@
 package com.erisco.madridshops.activities;
 
+import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +24,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.erisco.madridshops.R;
+import com.erisco.madridshops.domain.interactors.cache.GetCachedInteractor;
+import com.erisco.madridshops.domain.interactors.cache.get.ActivitiesGetCachedInteractorImpl;
+import com.erisco.madridshops.domain.interactors.cache.get.ShopsGetCachedInteractorImpl;
 import com.erisco.madridshops.domain.interactors.clearcache.ClearCacheInteractor;
 import com.erisco.madridshops.domain.interactors.clearcache.ClearCacheInteractorImpl;
 import com.erisco.madridshops.domain.interactors.cache.SetCachedInteractor;
@@ -26,6 +35,8 @@ import com.erisco.madridshops.domain.managers.cache.clear.ClearCacheManager;
 import com.erisco.madridshops.domain.managers.cache.clear.ClearCacheManagerDAOImpl;
 import com.erisco.madridshops.navigator.Navigator;
 import com.erisco.madridshops.util.MainThread;
+import com.erisco.madridshops.util.map.MapUtil;
+import com.erisco.madridshops.util.map.NetworkUtility;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         // shopsButton = (Button) findViewById(R.id.activity_main__shops_button);
-
         shopsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,10 +63,71 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(MainActivity.class.getCanonicalName(),"Hello activities");
+                Navigator.navigateFromMainActivityToActivityListActivity(MainActivity.this);
             }
         });
 
-        launchInBackgroundThread();
+        if(!NetworkUtility.isOnline(getApplicationContext())){
+            offlineAlert();
+
+            GetCachedInteractor getIfAllShopsAreCachedInteractor = new ShopsGetCachedInteractorImpl(this);
+            getIfAllShopsAreCachedInteractor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // all cached already, no need to download things,
+                    shopsButton.setVisibility(View.VISIBLE);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    // nothing cached yet and no internet connection
+                    shopsButton.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            GetCachedInteractor getIfAllActivitiesAreCachedInteractor = new ActivitiesGetCachedInteractorImpl(this);
+            getIfAllActivitiesAreCachedInteractor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // all cached already, no need to download things,
+                    activitiesButton.setVisibility(View.VISIBLE);
+                }
+            }, new Runnable() {
+                @Override
+                public void run() {
+                    // nothing cached yet and no internet connection
+                    activitiesButton.setVisibility(View.INVISIBLE);
+                }
+            });
+
+        }else{
+            ClearCacheManager clearCacheManager = new ClearCacheManagerDAOImpl(this);
+            ClearCacheInteractor clearCacheInteractor = new ClearCacheInteractorImpl(clearCacheManager);
+            clearCacheInteractor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    SetCachedInteractor setAllShopsAreCachedInteractor = new ShopsSetCachedInteractorImpl(getBaseContext());
+                    setAllShopsAreCachedInteractor.execute(false);
+                }
+            });
+        }
+
+        MapUtil.addPermission(this);  //Adding permissions to play with mapss
+
+        ///launchInBackgroundThread(); Uncomment to see how magic works!
+    }
+
+    private void offlineAlert(){
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_offline)
+                .setMessage(R.string.message_offline)
+                .setCancelable(false)
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).show();
     }
 
     private void launchInBackgroundThread() {
@@ -119,17 +190,5 @@ public class MainActivity extends AppCompatActivity {
             out.append(line);
         br.close();
         return out.toString();
-    }
-
-    @OnClick(R.id.activity_main__clear_cache_button) void clearCache() {
-        ClearCacheManager clearCacheManager = new ClearCacheManagerDAOImpl(this);
-        ClearCacheInteractor clearCacheInteractor = new ClearCacheInteractorImpl(clearCacheManager);
-        clearCacheInteractor.execute(new Runnable() {
-            @Override
-            public void run() {
-                SetCachedInteractor setAllShopsAreCachedInteractor = new ShopsSetCachedInteractorImpl(getBaseContext());
-                setAllShopsAreCachedInteractor.execute(false);
-            }
-        });
     }
 }

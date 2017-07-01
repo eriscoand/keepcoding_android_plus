@@ -43,6 +43,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activities.ActivityListActivity" android:parentActivityName=".activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
         <activity android:name=".activities.ShopListActivity" android:parentActivityName=".activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -56,11 +62,24 @@
 
         </activity>
 
-        <!-- Google maps -->
+        <activity android:name=".activities.ActivityDetailActivity" android:parentActivityName=".activities.ActivityListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ActivityListActivity" />
 
+        </activity>
+
+        <!-- Google maps -->
+        AIzaSyARQwpwzi61DmCGkpQ2hUaxSkPaKgqJ3GM
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyARQwpwzi61DmCGkpQ2hUaxSkPaKgqJ3GM" />
+
+        <!-- Diego you must uncomment this
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAlcVkMkUB8bhj-GmXcpkAEmUlC4x1VTsw" />
+        -->
 
         <meta-data
             android:name="com.google.android.gms.version"

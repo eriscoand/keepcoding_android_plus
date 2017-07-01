@@ -40,7 +40,7 @@ public class ShopDetailActivity extends AppCompatActivity {
                     placeholder(R.drawable.shop_placeholder).
                     into(shopImage);
 
-            String staticMapUrl = StaticMapImage.getMapImageUrl(shop);
+            String staticMapUrl = StaticMapImage.getMapImageUrl(shop.getLatitude(),shop.getLongitude());
             Picasso.with(this).
                     load(staticMapUrl).
                     placeholder(R.drawable.map_placeholder).

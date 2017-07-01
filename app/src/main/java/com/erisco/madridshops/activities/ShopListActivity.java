@@ -1,11 +1,17 @@
 package com.erisco.madridshops.activities;
 
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -31,8 +37,8 @@ import com.erisco.madridshops.domain.interactors.list.ShopsListInteractorImpl;
 import com.erisco.madridshops.domain.interactors.cache.GetCachedInteractor;
 import com.erisco.madridshops.domain.interactors.cache.get.ShopsGetCachedInteractorImpl;
 import com.erisco.madridshops.domain.interactors.InteractorErrorCompletion;
-import com.erisco.madridshops.domain.interactors.SaveAllShopsIntoCacheInteractor;
-import com.erisco.madridshops.domain.interactors.SaveAllShopsIntoCacheInteractorImpl;
+import com.erisco.madridshops.domain.interactors.save.SaveIntoCacheInteractor;
+import com.erisco.madridshops.domain.interactors.save.ShopsSaveIntoCacheInteractorImpl;
 import com.erisco.madridshops.domain.interactors.cache.SetCachedInteractor;
 import com.erisco.madridshops.domain.interactors.cache.set.ShopsSetCachedInteractorImpl;
 import com.erisco.madridshops.domain.managers.cache.list.ListFromCacheManager;
@@ -61,6 +67,8 @@ public class ShopListActivity extends AppCompatActivity {
     private SupportMapFragment mapFragment;
     public GoogleMap map;
 
+    private Shops fullShops;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +77,38 @@ public class ShopListActivity extends AppCompatActivity {
 
         shopsFragment = (ShopsFragment) getSupportFragmentManager().findFragmentById(R.id.activity_shop_list__fragment_shops);
 
+
         initializeMap();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.menu_search);
+
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
+                configShopsFragment(fullShops);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                List<Shop> queryShops = fullShops.query(query);
+                Shops shops = new Shops().from(queryShops);
+                configShopsFragment(shops);
+                return false;
+            }
+        });
+
+        return true;
     }
 
     private void checkCacheData() {
@@ -113,36 +151,13 @@ public class ShopListActivity extends AppCompatActivity {
     }
 
     public void addDataToMap(GoogleMap map) {
-        if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
-
-        centerMapInPosition(map, 40.411335, -3.674908);
-        map.setBuildingsEnabled(true);
-        map.setMapType(MAP_TYPE_NORMAL);
-        map.getUiSettings().setRotateGesturesEnabled(false);
-        map.getUiSettings().setZoomControlsEnabled(true);
-        map.setMyLocationEnabled(true);
-
-        MarkerOptions retiroMarkerOptions = new MarkerOptions()
-                .position(new LatLng(40.411335, -3.674908))
-                .title("Hello world").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-
-        MarkerOptions retiroMarkerOptions2 = new MarkerOptions()
-                .position(new LatLng(40.42, -3.674908))
-                .title("Hello world 2").icon(BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_camera));
-
-        Marker marker = map.addMarker(retiroMarkerOptions);
-        map.addMarker(retiroMarkerOptions2);
+        centerMapInPosition(map, getString(R.string.default_lat), getString(R.string.default_lng), getString(R.string.default_zoom));
+        this.map = MapUtil.init(map);
 
     }
 
@@ -154,6 +169,7 @@ public class ShopListActivity extends AppCompatActivity {
             @Override
             public void completion(@NonNull Shops shops) {
                 configShopsFragment(shops);
+                fullShops = shops;
             }
         });
     }
@@ -162,13 +178,13 @@ public class ShopListActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         NetworkManager manager = new ListManagerImplementation(this);
-        ListInteractor getAllShopsInteractor = new ShopsListInteractorImpl(getString(R.string.JSON_ACTIVITIES_URL), manager);
+        ListInteractor getAllShopsInteractor = new ShopsListInteractorImpl(getString(R.string.JSON_SHOPS_URL), manager);
         getAllShopsInteractor.execute(
             new ListInteractorCompletion<Shops>() {
                 @Override
                 public void completion(Shops shops) {
                     SaveListIntoCacheManager saveManager = new ShopsSaveListIntoCacheManagerDAOImpl(getBaseContext());
-                    SaveAllShopsIntoCacheInteractor saveInteractor = new SaveAllShopsIntoCacheInteractorImpl(saveManager);
+                    SaveIntoCacheInteractor saveInteractor = new ShopsSaveIntoCacheInteractorImpl(saveManager);
                     saveInteractor.execute(shops, new Runnable() {
                         @Override
                         public void run() {
@@ -178,6 +194,7 @@ public class ShopListActivity extends AppCompatActivity {
                     });
 
                     configShopsFragment(shops);
+                    fullShops = shops;
                     progressBar.setVisibility(View.INVISIBLE);
                 }
             },
@@ -194,9 +211,8 @@ public class ShopListActivity extends AppCompatActivity {
         shopsFragment.setShops(shops);
         shopsFragment.setOnElementClickListener(new OnElementClick<Shop>() {
             @Override
-            public void clickedOn(@NonNull Shop element, int position) {
-                // TODO: finish
-                Navigator.navigateFromShopListActivityToShopDetailActivity(ShopListActivity.this, element, position);
+            public void clickedOn(@NonNull Shop shop, int position) {
+                Navigator.navigateFromShopListActivityToShopDetailActivity(ShopListActivity.this, shop, position);
             }
         });
 

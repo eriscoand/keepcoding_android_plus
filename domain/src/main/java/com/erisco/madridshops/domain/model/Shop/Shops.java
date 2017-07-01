@@ -2,13 +2,15 @@ package com.erisco.madridshops.domain.model.Shop;
 
 import android.support.annotation.NonNull;
 
+import com.erisco.madridshops.domain.model.Activity.Activity;
+import com.erisco.madridshops.domain.model.Queryable;
 import com.erisco.madridshops.domain.model.Updatable;
 import com.erisco.madridshops.domain.model.Iterable;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class Shops implements Iterable<Shop>, Updatable<Shop> {
+public class Shops implements Iterable<Shop>, Updatable<Shop>, Queryable<Shop> {
     private List<Shop> shops;
 
     public static Shops from(@NonNull final List<Shop> shopList) {
@@ -65,5 +67,24 @@ public class Shops implements Iterable<Shop>, Updatable<Shop> {
     @Override
     public void update(Shop newShop, long index) {
         getShops().set((int)index, newShop);
+    }
+
+    public List<Shop> query(String query) {
+
+        List<Shop> returnShops = new LinkedList<>();
+
+        for (Shop shop : this.shops) {
+
+            String name = shop.getName();
+            name = name.replace(" ", ""); //DELETING BLANK SPACES
+            name = name.toLowerCase(); //LOWER CASE
+
+            int i = name.indexOf(query);
+            if (i >= 0) {
+                returnShops.add(shop);
+            }
+        }
+        return returnShops;
+
     }
 }

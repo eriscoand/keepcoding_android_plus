@@ -62,4 +62,27 @@ public class ShopsUnitTests {
         assertEquals("My shop 0", sut.allElements().get(0).getName());
     }
 
+    @Test
+    public void shops_adding_several_shops_query_returns_good_count() throws Exception {
+        Shops sut = new Shops();
+
+        for (int i = 0; i < 10; i++) {
+            Shop shop = Shop.of(i, "My shop " + i);
+            sut.add(shop);
+        }
+
+        Shop shop1 = Shop.of(11, "aa aa");
+        sut.add(shop1);
+        Shop shop2 = Shop.of(11, "aabaa");
+        sut.add(shop2);
+        Shop shop3 = Shop.of(11, "aaa");
+        sut.add(shop3);
+        Shop shop4 = Shop.of(11, "aa aa");
+        sut.add(shop4);
+
+        assertEquals(4, sut.query("aa").size());
+        assertEquals(1, sut.query("aab").size());
+        assertEquals(10, sut.query("shop").size());
+    }
+
 }

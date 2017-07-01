@@ -6,15 +6,15 @@
     android:layout_height="100dp">
 
     <TextView
-        android:id="@+id/row_shop__shop_name"
+        android:id="@+id/row_element__element_name"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_centerVertical="true"
-        tools:text="The super mega evil shop!"
-        style="@style/shop_cell_name_style" />
+        tools:text="The super mega evil element!"
+        style="@style/element_cell_name_style" />
 
     <ImageView
-        android:id="@+id/row_shop__shop_logo"
+        android:id="@+id/row_element__element_logo"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_centerVertical="true"

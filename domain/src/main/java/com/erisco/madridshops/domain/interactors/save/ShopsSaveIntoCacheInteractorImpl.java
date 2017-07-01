@@ -1,13 +1,13 @@
-package com.erisco.madridshops.domain.interactors;
+package com.erisco.madridshops.domain.interactors.save;
 
 import com.erisco.madridshops.domain.managers.cache.save.SaveListIntoCacheManager;
 import com.erisco.madridshops.domain.model.Shop.Shops;
 
-public class SaveAllShopsIntoCacheInteractorImpl implements SaveAllShopsIntoCacheInteractor {
+public class ShopsSaveIntoCacheInteractorImpl implements SaveIntoCacheInteractor<Shops> {
 
     private SaveListIntoCacheManager manager;
 
-    public SaveAllShopsIntoCacheInteractorImpl(SaveListIntoCacheManager manager) {
+    public ShopsSaveIntoCacheInteractorImpl(SaveListIntoCacheManager manager) {
         this.manager = manager;
     }
 

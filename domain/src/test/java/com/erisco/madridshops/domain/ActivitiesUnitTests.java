@@ -1,4 +1,4 @@
-package com.erisco.madridshops.domain;
+package com.erisco.madridactivities.domain;
 
 import com.erisco.madridshops.domain.model.Activity.Activity;
 import com.erisco.madridshops.domain.model.Activity.Activities;
@@ -62,4 +62,26 @@ public class ActivitiesUnitTests {
         assertEquals("My activity 0", sut.allElements().get(0).getName());
     }
 
+    @Test
+    public void activities_adding_several_activities_query_returns_good_count() throws Exception {
+        Activities sut = new Activities();
+
+        for (int i = 0; i < 10; i++) {
+            Activity activity = Activity.of(i, "My activity " + i);
+            sut.add(activity);
+        }
+
+        Activity activity1 = Activity.of(11, "aa aa");
+        sut.add(activity1);
+        Activity activity2 = Activity.of(11, "aabaa");
+        sut.add(activity2);
+        Activity activity3 = Activity.of(11, "aaa");
+        sut.add(activity3);
+        Activity activity4 = Activity.of(11, "aa aa");
+        sut.add(activity4);
+
+        assertEquals(4, sut.query("aa").size());
+        assertEquals(1, sut.query("aab").size());
+        assertEquals(10, sut.query("activity").size());
+    }
 }

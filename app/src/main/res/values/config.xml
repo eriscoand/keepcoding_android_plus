@@ -2,4 +2,7 @@
 <resources>
     <string name="JSON_SHOPS_URL">http://madrid-shops.com/json_new/getShops.php</string>
     <string name="JSON_ACTIVITIES_URL">http://madrid-shops.com/json_new/getActivities.php</string>
+    <string name="default_lat">40.411335</string>
+    <string name="default_lng">-3.674908</string>
+    <string name="default_zoom">12</string>
 </resources>
