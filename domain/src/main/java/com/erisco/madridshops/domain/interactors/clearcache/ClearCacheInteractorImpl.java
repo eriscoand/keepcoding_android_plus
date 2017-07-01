@@ -1,5 +1,7 @@
 package com.erisco.madridshops.domain.interactors.clearcache;
 
+import com.erisco.madridshops.domain.interactors.cache.SetCachedInteractor;
+import com.erisco.madridshops.domain.interactors.cache.set.ShopsSetCachedInteractorImpl;
 import com.erisco.madridshops.domain.managers.cache.clear.ClearCacheManager;
 
 public class ClearCacheInteractorImpl implements ClearCacheInteractor {

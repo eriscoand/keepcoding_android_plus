@@ -27,10 +27,15 @@ import com.erisco.madridshops.R;
 import com.erisco.madridshops.domain.interactors.cache.GetCachedInteractor;
 import com.erisco.madridshops.domain.interactors.cache.get.ActivitiesGetCachedInteractorImpl;
 import com.erisco.madridshops.domain.interactors.cache.get.ShopsGetCachedInteractorImpl;
+import com.erisco.madridshops.domain.interactors.cache.set.ActivitiesSetCachedInteractorImpl;
 import com.erisco.madridshops.domain.interactors.clearcache.ClearCacheInteractor;
 import com.erisco.madridshops.domain.interactors.clearcache.ClearCacheInteractorImpl;
 import com.erisco.madridshops.domain.interactors.cache.SetCachedInteractor;
 import com.erisco.madridshops.domain.interactors.cache.set.ShopsSetCachedInteractorImpl;
+import com.erisco.madridshops.domain.interactors.invalidcache.GetInvalidCacheInteractor;
+import com.erisco.madridshops.domain.interactors.invalidcache.SetInvalidCacheInteractor;
+import com.erisco.madridshops.domain.interactors.invalidcache.get.GetInvalidCacheInteractorImpDate;
+import com.erisco.madridshops.domain.interactors.invalidcache.set.SetInvalidCacheInteractorImpDate;
 import com.erisco.madridshops.domain.managers.cache.clear.ClearCacheManager;
 import com.erisco.madridshops.domain.managers.cache.clear.ClearCacheManagerDAOImpl;
 import com.erisco.madridshops.navigator.Navigator;
@@ -70,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         NetworkUtility network = new NetworkUtility(getApplicationContext());
 
         if(!network.isOnline()){
+            //If network is disabled show and alert and hide buttons with no cache data
+
             offlineAlert();
 
             GetCachedInteractor getIfAllShopsAreCachedInteractor = new ShopsGetCachedInteractorImpl(this);
@@ -103,15 +110,37 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }else{
-            ClearCacheManager clearCacheManager = new ClearCacheManagerDAOImpl(this);
-            ClearCacheInteractor clearCacheInteractor = new ClearCacheInteractorImpl(clearCacheManager);
-            clearCacheInteractor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    SetCachedInteractor setAllShopsAreCachedInteractor = new ShopsSetCachedInteractorImpl(getBaseContext());
-                    setAllShopsAreCachedInteractor.execute(false);
-                }
-            });
+            //If network is enabled and cache is invalid clear all data.
+
+            GetInvalidCacheInteractor getInvalidCacheInteractor = new GetInvalidCacheInteractorImpDate(this);
+            getInvalidCacheInteractor.execute(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            //Cache is Valid!!
+                            //No need to do something right now
+                        }
+                    },
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            //Cache is invalid!! pls clear all cache
+
+                            ClearCacheManager clearCacheManager = new ClearCacheManagerDAOImpl(MainActivity.this);
+                            ClearCacheInteractor clearCacheInteractor = new ClearCacheInteractorImpl(clearCacheManager);
+                            clearCacheInteractor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    SetCachedInteractor setAllShopsAreCachedInteractor = new ShopsSetCachedInteractorImpl(getBaseContext());
+                                    setAllShopsAreCachedInteractor.execute(false);
+
+                                    SetCachedInteractor setAllActivitiesAreCachedInteractor = new ActivitiesSetCachedInteractorImpl(getBaseContext());
+                                    setAllActivitiesAreCachedInteractor.execute(false);
+                                }
+                            });
+
+                        }
+                    });
         }
 
         MapUtil.addPermission(this);  //Adding permissions to play with mapss

@@ -22,6 +22,8 @@ import com.erisco.madridshops.domain.interactors.cache.get.ActivitiesGetCachedIn
 import com.erisco.madridshops.domain.interactors.cache.set.ActivitiesSetCachedInteractorImpl;
 import com.erisco.madridshops.domain.interactors.cachelist.ListFromCacheInteractor;
 import com.erisco.madridshops.domain.interactors.cachelist.ActivitiesListFromCacheInteractorImpl;
+import com.erisco.madridshops.domain.interactors.invalidcache.SetInvalidCacheInteractor;
+import com.erisco.madridshops.domain.interactors.invalidcache.set.SetInvalidCacheInteractorImpDate;
 import com.erisco.madridshops.domain.interactors.list.ListInteractor;
 import com.erisco.madridshops.domain.interactors.list.ListInteractorCompletion;
 import com.erisco.madridshops.domain.interactors.list.ActivitiesListInteractorImpl;
@@ -41,6 +43,7 @@ import com.erisco.madridshops.util.map.MapPinnable;
 import com.erisco.madridshops.util.map.MapUtil;
 import com.erisco.madridshops.util.map.model.ActivityPin;
 import com.erisco.madridshops.views.OnElementClick;
+import com.erisco.madridshops.views.ActivityPinAdapter;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -52,7 +55,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.erisco.madridshops.util.map.MapUtil.centerMapInPosition;
-import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 
 public class ActivityListActivity extends AppCompatActivity {
 
@@ -185,6 +187,9 @@ public class ActivityListActivity extends AppCompatActivity {
                         public void run() {
                             SetCachedInteractor setAllActivitiesCachedInteractor = new ActivitiesSetCachedInteractorImpl(getBaseContext());
                             setAllActivitiesCachedInteractor.execute(true);
+
+                            SetInvalidCacheInteractor setInvalidCache = new SetInvalidCacheInteractorImpDate(getBaseContext());
+                            setInvalidCache.execute();
                         }
                     });
 
@@ -217,6 +222,8 @@ public class ActivityListActivity extends AppCompatActivity {
     private void putActivityPinsOnMap(Activities activities) {
         List<MapPinnable> activityPins = ActivityPin.activityPinsFromActivities(activities);
         MapUtil.addPins(activityPins, map, this);
+
+        map.setInfoWindowAdapter(new ActivityPinAdapter(getLayoutInflater()));
 
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override

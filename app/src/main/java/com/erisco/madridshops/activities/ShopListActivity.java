@@ -16,6 +16,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.erisco.madridshops.domain.interactors.invalidcache.SetInvalidCacheInteractor;
+import com.erisco.madridshops.domain.interactors.invalidcache.set.SetInvalidCacheInteractorImpDate;
+import com.erisco.madridshops.views.ActivityPinAdapter;
+import com.erisco.madridshops.views.ShopPinAdapter;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -190,6 +194,9 @@ public class ShopListActivity extends AppCompatActivity {
                         public void run() {
                             SetCachedInteractor setAllShopsCachedInteractor = new ShopsSetCachedInteractorImpl(getBaseContext());
                             setAllShopsCachedInteractor.execute(true);
+
+                            SetInvalidCacheInteractor setInvalidCache = new SetInvalidCacheInteractorImpDate(getBaseContext());
+                            setInvalidCache.execute();
                         }
                     });
 
@@ -222,6 +229,8 @@ public class ShopListActivity extends AppCompatActivity {
     private void putShopPinsOnMap(Shops shops) {
         List<MapPinnable> shopPins = ShopPin.shopPinsFromShops(shops);
         MapUtil.addPins(shopPins, map, this);
+
+        map.setInfoWindowAdapter(new ShopPinAdapter(getLayoutInflater()));
 
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override

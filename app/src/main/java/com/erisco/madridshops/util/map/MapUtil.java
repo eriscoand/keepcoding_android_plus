@@ -31,7 +31,6 @@ public class MapUtil {
         return map;
     }
 
-
     public static void centerMapInPosition(GoogleMap googleMap, String latitude, String longitude, String zoom) {
 
         Double lat = Double.parseDouble(latitude);;
@@ -55,7 +54,9 @@ public class MapUtil {
             final LatLng position = new LatLng(pinnable.getLatitude(), pinnable.getLongitude());
             final String profileImageUrl = pinnable.getPinImageUrl();
 
-            final MarkerOptions marker = new MarkerOptions().position(position).title(pinnable.getPinDescription());
+            final MarkerOptions marker = new MarkerOptions()
+                                                .position(position)
+                                                .title(pinnable.getPinDescription());
 
             Marker m = googleMap.addMarker(marker);
             m.setTag(pinnable.getRelatedModelObject());
